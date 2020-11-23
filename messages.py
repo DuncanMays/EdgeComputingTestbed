@@ -1,4 +1,6 @@
 
+from local_config import SELF_IP_ADDRESS
+
 class Message():
     """Base Message Class"""
     def __init__(self):
@@ -7,54 +9,38 @@ class Message():
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
-class Init(Message):
+class Join(Message):
     """Initialization message sent by worker."""
     def __init__(self, data=None):
         super().__init__()
-        self.type = "init"
+        self.type = "join"
+        self.ip = SELF_IP_ADDRESS
+
         if data:
             self.__dict__ = data
 
-class Init_Response(Message):
-    """Manager response to initialization message."""
-    def __init__(self, modelStr='', data=None):
-        super().__init__()
-        self.type = "init_resp"
-        self.id = 0
-        self.model = modelStr
-        if data:
-            self.__dict__ = data
-            
-class Fetch(Message):
-    """Request model parameters from the manager."""
+class Leave(Message):
+    """Initialization message sent by worker."""
     def __init__(self, data=None):
         super().__init__()
-        self.type = "fetch"
+        self.type = "Leave"
+        self.ip = SELF_IP_ADDRESS
+
         if data:
             self.__dict__ = data
 
-class Fetch_Response(Message):
-    """Return model parameters to the worker that requested them."""
-    def __init__(self, modelParams='', data=None):
-        super().__init__()
-        self.type = "fetch_resp"
-        self.weights = modelParams
-        if data:
-            self.__dict__ = data
+def test(parameter):
+    return parameter
 
-class Push(Message):
-    """Supply the manager with model information."""
-    def __init__(self, weights='', data=None):
-        super().__init__()
-        self.type = "push"
-        self.weights = weights
-        if data:
-            self.__dict__ = data
-
-class Terminate(Message):
-    """WHAT ARE YOU DOUUUUINGGK? KILL MEEH NAAHHOUUUU!!!!"""    # lol
+class Task(Message):
+    """Initialization message sent by worker."""
     def __init__(self, data=None):
         super().__init__()
-        self.type = "terminate"
+        self.type = "task"
+        self.ip = SELF_IP_ADDRESS
+
+        self.workfn = test
+        self.params = 'this is a test'
+
         if data:
             self.__dict__ = data

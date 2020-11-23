@@ -1,10 +1,6 @@
-"""Transport module for sending strings to the manager."""
 
 import socket
 from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
-
-# TESTING
-from local_config import SELF_IP_ADDRESS
 
 class Client():
     def __init__(self):
@@ -16,7 +12,7 @@ class Client():
         # should this method fail to send the data, it will retry at most 5 times
         # this if block stops the method from executing if its depth is less than or equal 0
         if (depth <= 0):
-            return
+            return 'no connection'
 
         # establishes a connection with the socket at the opther IP address
         channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

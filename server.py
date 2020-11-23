@@ -1,55 +1,87 @@
-"""Transport module for receiving data from workers."""
+# Written by Duncan Mays - 16djm1@queensu.ca
+# created as part of the edge intelligence testbed project for the Edge Computing Research group at Queen's university
 
 import socket
+from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
+from local_config import SELF_IP_ADDRESS
+
+"""
+    This server module listens on a socket and accepts a callback response_policy which it will call on
+any message it receives, after parsing that message into a string.
+
+There are two important functions in this class.
+
+start, as the name suggests, will start a socket for any data throughput.
+start is persistent, it will not stop listening after a message has completed.
+start will call parse when it detects a message.
+
+recieve will parse the packets of raw bytes in the NIC into a string representation message that was sent
+parse is not persistent, ie, it will return control back to start when a message has completed
+"""
 
 class Server():
     def __init__(self, response_policy: object):
-        """response_policy is a method describing how to reply to different message types."""
-        self.manager_ip = '127.0.0.1'
-        self.port = 12345
-        self.response_policy = response_policy # used Noun naming because it is treated like a Noun here
+        self.response_policy = response_policy
 
-    def recv_fromWorker(self, conn: socket):
-        """Receive string from Worker via the client module."""
+        self.ip = SELF_IP_ADDRESS
         
+        self.port = PROTOCOL_PORT
+        self.encoding = BYTE_ENCODING
+        self.packet_size = PACKET_SIZE
+
+    # this method listens on a port (non-persistently) and returns any message sent there
+    # non-persistent in the context of this program means that it will stop operating as soon as the message is complete
+    def parse(self, conn: socket):
         msg = []
-        conn.settimeout(0.5) # is there a better way to do this???
-        while True: # receive data 1024 bytes at a time
+        # is there a better way to do this???
+        conn.settimeout(0.5)
+
+        # receives data 1024 bytes at a time
+        while True:
             try:
-                data = conn.recv(1024)
-                # print(data)
+                # reads the NIC's buffer into the variable data
+                data = conn.recv(self.packet_size)
+                # decodes data into a string and appends it to the list msg
+                msg.append(data.decode(encoding=self.encoding))
             except Exception as e:
-                print('no data sent this cycle')
-                print(e)
-
-                if (e == 'timed out'):
-                    print('closing connection')
-
+                # if there is no data in the NIC's buffer, the message is over so break the loop
                 break
-            msg.append(data.decode(encoding='UTF-8')) # append decoded string
 
+        # concatenates all the strings in msg into one message
         message = ''.join(msg) # concatenate string
 
         return message
 
-    def run(self):
-        """Describes the workflow of the Manager."""
-
+    # this method listens on a port persistently, meaning it will keep listening after a message ends
+    # should it detect anything in the NIC's buffer, it will call parse on it, which will return a string representation of whatever message was sent
+    # start will the call response_policy on that string.
+    def start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((self.manager_ip, self.port))
+        s.bind((self.ip, self.port))
         s.listen(5)
-        print('Server listening...')
+        print('listening on port '+str(self.port))
 
         while True:
-            # receive
+            # s.accept will return when it detects a connection
             conn, addr = s.accept()
-            msg = self.recv_fromWorker(conn)
 
-            # respond
-            # Duncan - I'm worried that if no message is recieved, msg will be None and it might cause response_policy to fuck up 
-            # putting this in an if(msg != None): block might be a good idea
+            # parses the data in that connection
+            msg = self.parse(conn)
+
+            # calls response policy on the string representation of the message
             response = self.response_policy(msg)
-            conn.send(response.encode(encoding='UTF-8'))
 
-            # close
+            # the server will now try to send response back to the client, both as confirmation that the message was sent successfully but also to trainsmit possibly useful information
+            try:
+                # the resonse may not be serializable
+                msg = json.dumps(response)
+                # the object returned by response_policy is sent back to the client
+                conn.send(msg.encode(encoding=self.encoding))
+            except:
+                # if the object returned by response policy is not JSON serializable, send this
+                conn.send('object returned by response policy is not JSON serializable'.encode(encoding=self.encoding))
+
+            # closes the connection
             conn.close()
+
+            # the loop will now repeat to listen for another connection

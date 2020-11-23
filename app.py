@@ -1,4 +1,6 @@
 from server import Server
+import json
+import asyncio
 
 class App():
 
@@ -35,5 +37,5 @@ class App():
     self.callback_map[msg_type] = callback_fn
 
   # starts the server
-  def start(self):
+  async def start(self):
     self.server.start()

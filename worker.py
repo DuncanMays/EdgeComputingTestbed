@@ -2,12 +2,11 @@
 
 import json
 import client as client
-from local_config import SELF_IP_ADDRESS
 
 def main():
     cl = client.Client()
 
-    cl.send('hi', SELF_IP_ADDRESS)
+    cl.send('this is an arbitrary message', '192.168.2.42')
 
 if __name__ == "__main__":
     main()

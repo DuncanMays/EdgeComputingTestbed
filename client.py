@@ -20,6 +20,7 @@ class Client():
 
         # establishes a connection with the socket at the opther IP address
         channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         channel.connect((ip_address, self.port))
         
         # sensd the message

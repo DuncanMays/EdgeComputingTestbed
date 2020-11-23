@@ -1,4 +1,3 @@
-"""Message structure for worker and manager communication."""
 
 class Message():
     """Base Message Class"""

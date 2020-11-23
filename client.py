@@ -1,35 +1,53 @@
 """Transport module for sending strings to the manager."""
 
 import socket
+from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
+
+# TESTING
+from local_config import SELF_IP_ADDRESS
 
 class Client():
     def __init__(self):
-        self.manager_ip = '127.0.0.1'
-        self.port = 12345
+        self.port = PROTOCOL_PORT
 
-    def send(self, msg: str):
-        """Send string to Manager via the server module. Works differently than Server.send()"""
-        
-        srvr = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        srvr.connect((self.manager_ip, self.port))
-        
-        srvr.send(msg.encode(encoding='UTF-8'))
-        print('Sent message.')
+    # this method simply sends a given string to a given ip address
+    def send(self, msg: str, ip_address: str, depth=5):
 
+        # should this method fail to send the data, it will retry at most 5 times
+        # this if block stops the method from executing if its depth is less than or equal 0
+        if (depth <= 0):
+            return
+
+        # establishes a connection with the socket at the opther IP address
+        channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        channel.connect((ip_address, self.port))
+        
+        # sensd the message
+        channel.send(msg.encode(encoding=BYTE_ENCODING))
+
+        # now waits for the response
         resp = []
-        srvr.settimeout(5.0) # is there a better way to do this???
-        while True: # receive data 1024 bytes at a time
-            data = srvr.recv(1024).decode(encoding='UTF-8')
+        # is there a better way to do this???
+        channel.settimeout(5.0)
+        while True: 
+            # pulls teh data out of the NIC buffer and decodes it
+            data = channel.recv(PACKET_SIZE).decode(encoding=BYTE_ENCODING)
+
+            # if there is no data, the message is complete so stop reading
             if data == '':
                 break
-            resp.append(data) # append decoded string
+
+            # adds the decoded string to the list resp
+            resp.append(data)
         
-        if resp is None: # shut down and retry
-            srvr.close()
-            return None
+        # closes the connection
+        channel.close()
 
+        # if there was no response, then the message was not sent successfully, and we should retry
+        if resp is None:
+            return send(msg, ip_address, depth-1)
+
+        # joins the peices of the message together
         response = ''.join(resp)
-
-        srvr.close()                     # Close the socket when done
 
         return response

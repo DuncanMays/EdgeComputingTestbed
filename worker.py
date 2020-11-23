@@ -1,9 +1,8 @@
 """Worker"""
 
 import json
-import comms.client as client
+import client as client
 from messages import Message, Init, Init_Response, Push, Fetch, Fetch_Response, Terminate
-import comms.serializeLibrary as serial
 import mnist
 import numpy as np
 import tensorflow as tf

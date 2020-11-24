@@ -2,7 +2,6 @@
 # created as part of the edge intelligence testbed project for the Edge Computing Research group at Queen's university
 
 import socket
-import asyncio
 
 from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
 from local_config import SELF_IP_ADDRESS
@@ -57,7 +56,7 @@ class Server():
     # this method listens on a port persistently, meaning it will keep listening after a message ends
     # should it detect anything in the NIC's buffer, it will call parse on it, which will return a string representation of whatever message was sent
     # start will the call response_policy on that string.
-    async def start(self):
+    def start(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.ip, self.port))
         s.listen(5)

@@ -1,6 +1,6 @@
 """Manager. Manager policy is defined by the build_response method."""
 
-import json
+import pickle
 import server as srvr
 
 def response_policy(msg_json: str):

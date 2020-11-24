@@ -1,5 +1,5 @@
 from server import Server
-import json
+import pickle
 
 class App():
 
@@ -19,7 +19,7 @@ class App():
     # this function will be provided to the server as the response policy, meaning it will be called every time a message is receive
     # as such, it will map call the provided callback on the given message, by referenceing callback_map or using the defaule callback if no callback is specified for the specific message type
     def switch(msg):
-      msg_dict = json.loads(msg)
+      msg_dict = pickle.loads(msg)
 
       try:
         callback = self.callback_map[msg_dict["type"]]

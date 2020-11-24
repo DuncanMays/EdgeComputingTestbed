@@ -1,10 +1,15 @@
 
 from local_config import SELF_IP_ADDRESS
 
+import pickle
+
 class Message():
     """Base Message Class"""
     def __init__(self):
         self.type = ""
+
+    def to_string(self):
+        return pickle.dumps(self.__dict__)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -28,9 +33,6 @@ class Leave(Message):
 
         if data:
             self.__dict__ = data
-
-def test(parameter):
-    return parameter
 
 class Task(Message):
     """Initialization message sent by worker."""

@@ -2,6 +2,7 @@
 # created as part of the edge intelligence testbed project for the Edge Computing Research group at Queen's university
 
 import socket
+import pickle
 
 from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
 from local_config import SELF_IP_ADDRESS
@@ -72,15 +73,20 @@ class Server():
             # calls response policy on the string representation of the message
             response = self.response_policy(msg)
 
+            # response_policy is user-defined, so it may return None.
+            # If that is the case, we want the client to still get some confirmation that their message was received
+            if(response == None):
+                response = '_'
+
             # the server will now try to send response back to the client, both as confirmation that the message was sent successfully but also to trainsmit possibly useful information
             try:
                 # the resonse may not be serializable
-                msg = json.dumps(response)
+                msg = pickle.dumps(response)
                 # the object returned by response_policy is sent back to the client
                 conn.send(msg.encode(encoding=self.encoding))
             except:
-                # if the object returned by response policy is not JSON serializable, send this
-                conn.send('object returned by response policy is not JSON serializable'.encode(encoding=self.encoding))
+                # if the object returned by response policy is not serializable, send this
+                conn.send('object returned by response policy is not serializable via pickle'.encode(encoding=self.encoding))
 
             # closes the connection
             conn.close()

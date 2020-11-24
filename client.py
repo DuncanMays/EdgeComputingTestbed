@@ -47,4 +47,9 @@ class Client():
         # joins the peices of the message together
         response = ''.join(resp)
 
+        # sometimes the callback waiting on the server will return None
+        # in this case the server will send back '_' as confirmation that the message was successfully received
+        if (response == '_'):
+            return None
+
         return response

@@ -81,13 +81,13 @@ class Server():
             # the server will now try to send response back to the client, both as confirmation that the message was sent successfully but also to trainsmit possibly useful information
             try:
                 # the resonse may not be serializable
-                msg = pickle.dumps(response)
+                msg = str(pickle.dumps(response))
             except:
                 # if the object returned by response policy is not serializable, send this
                 print('error in serialization: ', end='')
                 print(msg)
 
-                msg = 'object returned by response policy is not serializable via pickle'.encode(encoding=self.encoding)
+                msg = 'object returned by response policy is not serializable via pickle'
 
             conn.send(msg.encode(encoding=self.encoding))
 

@@ -9,6 +9,8 @@ def main():
 
     msg = Join()
 
+    print(type(msg.to_string()))
+
     target = '192.168.2.42'
     # target = '127.0.0.1'
 

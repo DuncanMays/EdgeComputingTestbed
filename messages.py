@@ -9,7 +9,7 @@ class Message():
         self.type = ""
 
     def to_string(self):
-        return pickle.dumps(self.__dict__)
+        return str(pickle.dumps(self.__dict__))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

@@ -1,5 +1,7 @@
 
 import socket
+import pickle
+
 from global_config import PROTOCOL_PORT, BYTE_ENCODING, PACKET_SIZE
 
 class Client():
@@ -27,7 +29,7 @@ class Client():
         # is there a better way to do this???
         channel.settimeout(5.0)
         while True: 
-            # pulls teh data out of the NIC buffer and decodes it
+            # pulls the data out of the NIC buffer and decodes it
             data = channel.recv(PACKET_SIZE).decode(encoding=BYTE_ENCODING)
 
             # if there is no data, the message is complete so stop reading
@@ -46,6 +48,8 @@ class Client():
 
         # joins the peices of the message together
         response = ''.join(resp)
+
+        response = pickle.loads(bytes(response))
 
         # sometimes the callback waiting on the server will return None
         # in this case the server will send back '_' as confirmation that the message was successfully received

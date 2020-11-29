@@ -87,7 +87,7 @@ class Server():
                 print('error in serialization: ', end='')
                 print(msg)
 
-                msg = 'object returned by response policy is not serializable via pickle'
+                msg = str(pickle.dumps('object returned by response policy is not serializable via pickle'))
 
             conn.send(msg.encode(encoding=self.encoding))
 

@@ -9,7 +9,7 @@ def main():
 
     msg = Join()
 
-    target = '192.168.2.42'
+    target = '192.168.5.150'
     # target = '127.0.0.1'
 
     print(cl.send(msg.to_string(), target))
